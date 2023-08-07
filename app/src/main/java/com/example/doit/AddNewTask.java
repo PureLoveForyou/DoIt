@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 import com.example.doit.Module.ToDoModule;
@@ -25,7 +26,7 @@ import java.util.Objects;
 public class AddNewTask extends BottomSheetDialogFragment {
     public static final String TAG = "ActionBottomDialog";
 
-    private EditText newTaskText;
+    private EditText newTaskText, newTaskDescription;
     private Button newTaskSaveButton;
     private DatabaseHandler db;
 
@@ -39,6 +40,7 @@ public class AddNewTask extends BottomSheetDialogFragment {
         setStyle(STYLE_NORMAL, R.style.DialogStyle);
     }
 
+    @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle saveInstanceState){
         View view = inflater.inflate(R.layout.new_task, container, false);
@@ -51,13 +53,17 @@ public class AddNewTask extends BottomSheetDialogFragment {
         super.onViewCreated(view, saveInstanceState);
         newTaskText = getView().findViewById(R.id.addTaskTitle);
         newTaskSaveButton = getView().findViewById(R.id.addTask);
+        newTaskDescription = getView().findViewById(R.id.addTaskDescription);
 
         boolean isUpdate = false;
         final Bundle bundle = getArguments();
         if(bundle != null){
             isUpdate = true;
             String task = bundle.getString("task");
+            String description = bundle.getString("description");
+
             newTaskText.setText(task);
+            newTaskDescription.setText(description);
             if(task.length()>0){
                 newTaskSaveButton.setTextColor(ContextCompat.getColor(getContext(), R.color.colorPrimaryDark));
 
@@ -81,7 +87,7 @@ public class AddNewTask extends BottomSheetDialogFragment {
                 }
                 else{
                     newTaskSaveButton.setEnabled(true);
-                    newTaskSaveButton.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorPrimaryDark));
+                    newTaskSaveButton.setTextColor(ContextCompat.getColor(requireContext(), R.color.green));
                 }
             }
 
@@ -96,16 +102,18 @@ public class AddNewTask extends BottomSheetDialogFragment {
             @Override
             public void onClick(View view) {
                 String text = newTaskText.getText().toString();
+                String text_description =newTaskDescription.getText().toString();
                 if(finalIsUpdate){
-                    db.updateTask(bundle.getInt("id"), text);
+                    db.updateTask(bundle.getInt("id"), text, text_description);
                 }
                 else {
                     ToDoModule task = new ToDoModule();
                     task.setTask(text);
+                    task.setTaskDescription(text_description);
                     task.setStatus(0);
                     db.insertTask(task);
                 }
-                dismiss();
+                dismiss();//BottomSheetDialogFragment的方法
             }
         });
     }

@@ -18,8 +18,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String ID = "id";
     private static final String TASK = "task";
     private static final String STATUS = "status";
-    private static final String  CREATE_TODO_TABLE = "CREATE TABLE " + TODO_TABLE + "(" + ID + "INTEGER PRIMARY KEY AUTOINCREMENT, " + TASK + "TEXT, " + STATUS + " INTEGER)";
-
+    private static final String DESCRIPTION = "description";
+//    private static final String  CREATE_TODO_TABLE = "CREATE TABLE " + TODO_TABLE + "(" + ID + "INTEGER PRIMARY KEY AUTOINCREMENT, " + TASK + "TEXT, " + STATUS + " INTEGER)";
+    private static final String  CREATE_TODO_TABLE = "CREATE TABLE " + TODO_TABLE + "(" + ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + TASK + " TEXT, " + STATUS + " INTEGER, " + DESCRIPTION + " TEXT)";
     private SQLiteDatabase db;
     public DatabaseHandler(Context context){
         super(context, NAME, null, VERSION);
@@ -46,6 +47,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         ContentValues cv = new ContentValues();
         cv.put(TASK, task.getTask());
         cv.put(STATUS, 0);
+        cv.put(DESCRIPTION, task.getTaskDescription());
         db.insert(TODO_TABLE, null, cv);
     }
 
@@ -62,6 +64,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                         task.setId(cur.getInt(cur.getColumnIndexOrThrow(ID)));
                         task.setTask(cur.getString(cur.getColumnIndexOrThrow(TASK)));
                         task.setStatus(cur.getInt(cur.getColumnIndexOrThrow(STATUS)));
+                        task.setTaskDescription(cur.getString(cur.getColumnIndexOrThrow(DESCRIPTION)));
                         taskList.add(task);
                     }while(cur.moveToNext());
                 }
@@ -69,7 +72,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
         finally {
             db.endTransaction();
-            db.close();
+            //db.close();
         }
         return taskList;
     }
@@ -80,9 +83,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.update(TODO_TABLE, cv, ID+"=?", new String[]{String.valueOf(id)});
     }
 
-    public void updateTask(int id, String task){
+    public void updateTask(int id, String task, String description){
         ContentValues cv = new ContentValues();
         cv.put(TASK, task);
+        cv.put(DESCRIPTION, description);
         db.update(TODO_TABLE, cv, ID+"=?", new String[]{String.valueOf(id)});
     }
 
